@@ -1,5 +1,5 @@
 ---
-- name: Prepare image at Test
+- name: BUILD
   hosts: db
   become: "yes"
 
@@ -30,7 +30,7 @@
         name: "vmdocker2022/built-hw8"
         push: "yes"
 
-- name: Pull image and run docker container
+- name: PROD
   hosts: web
   become: yes
 
