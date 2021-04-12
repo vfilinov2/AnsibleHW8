@@ -1,0 +1,58 @@
+---
+- name: Prepare image at Test
+  hosts: db
+  become: yes
+
+  tasks:
+    - name: Copy the image
+      copy:
+        src: Dockerfile
+        dest: /tmp/hw8/Dockerfile
+    - name: Ensure docker is present
+      apt: 
+
+
+    - name: Build the image
+      command: "docker build -t built-hw8:1.0 /tmp/hw8"
+
+    - name: Login docker registry
+      command: "docker login  -u vmdocker2022 -p FantasyF12"
+
+    - name: Tag the image
+      docker_image:
+        name: "built-hw8"
+        repository: "vmdocker2022/built-hw8"
+        tag: 1.0
+
+    - name: Push image to docker registry
+      docker_image:
+        name: "vmdocker2022/built-hw8"
+        tag: 1.0
+        push: yes
+
+- name: Pull image and run docker container
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Login docker registry
+      command: docker login -u vmdocker2022 -p FantasyF12
+
+    - name: Pull image
+      docker_image:
+        name: "vmdocker2022/built-hw8"
+        pull: yes
+
+    - name: Remove old container
+      docker_container:
+        name: "hw8_container"
+        state: absent
+
+    - name: Run container
+      docker_container:
+        name: "hw8_container"
+        image: "vmdocker2022/built-hw8"
+        state: started
+
+        ports:
+          - "8080:8080"
